@@ -20,7 +20,7 @@ public class PostController {
     String  sendEmail(@RequestBody String email) {
         LOGGER.info("Email Request: {}", email);
         //return "sending done";
-        return emailService.sendSimpleMessage("saibalakrishna7799@gmail.com","Dummy email","here is the mail");
+        return emailService.sendSimpleMessage(email,"Dummy email","here is the mail");
 
     }
 }
