@@ -4,15 +4,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
+import dev.example.serverlessapi.post.Entities.Post;
+import dev.example.serverlessapi.post.Repositories.PostRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage; // Import MimeMessage from Jakarta Mail
@@ -22,18 +31,30 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender emailSender;
+    @Autowired
+    private PostRepository postRepository;
 
+    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(EmailService.class);
+    public List<Post> getAllUsers() {
+        return postRepository.findAll();
+    }
     public String sendSimpleMessage(String to, String subject, String text) {
         try {
+
+            List<Post> posts = getAllUsers();
+            for (Post post : posts) {
+                LOGGER.info(post.toString());
+            }
             Workbook workbook = new XSSFWorkbook();
 
             // Create a blank sheet
             Sheet sheet = workbook.createSheet("Sheet1");
-
+            for (int i = 0; i < posts.toArray().length; i++) {
+                Row row = sheet.createRow(i);
+                row.createCell(0).setCellValue(posts.get(i).getName());
+                row.createCell(1).setCellValue(posts.get(i).getAge());
+            }
             // Create a row and put some cells in it
-            Row row = sheet.createRow(0);
-            row.createCell(0).setCellValue("Name");
-            row.createCell(1).setCellValue("Age");
 
             // Write the workbook content to a file
             File file = new File("workbook.xlsx");
